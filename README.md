@@ -1,3 +1,5 @@
+#add lister option as a argument
+
 # refactor and separate subprocess in separate py file
 
 # lister filter by resource type

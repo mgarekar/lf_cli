@@ -12,9 +12,12 @@ import json,argparse
 import subprocess
 import sys
 
+def list_principals():
+    print ("Here are all the principals in this account")
+
 def parse_args():
     ''' Arg Parsing, invalid input handling, and setting global command'''
-    
+    list_principals()
     parser = argparse.ArgumentParser()
     parser.add_argument("--region",help='enter the aws region that you want to work in,\n Default us-east-1',default='us-east-1')
     parser.add_argument("principal",help='Name of Principal')
