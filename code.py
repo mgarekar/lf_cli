@@ -12,8 +12,7 @@ import json,argparse
 import subprocess
 import sys
 
-def list_principals():
-    print ("Here are all the principals in this account")
+    
 
 def parse_args():
     ''' Arg Parsing, invalid input handling, and setting global command'''
@@ -52,8 +51,15 @@ def run_command(cmd,debug=False):
     #all good, successful stdout was returned
     return stdout
 
-
-
+def list_principals():
+    '''List all roles in this account with lf in their name '''
+    print ("Here are all the principals in this accounti")
+    roles_dict=run_command('aws iam list-roles',debug=False)
+    roles_dict=json.loads(roles_dict)
+    for role_obj in roles_dict['Roles']:
+        if "lf" in role_obj['RoleName']:
+            print ( role_obj['RoleName'])
+        # print (role_obj)
 #PARSE ARGS
 args=parse_args()
 print (args)
