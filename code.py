@@ -12,7 +12,6 @@ import json,argparse
 import subprocess
 import sys
 
-    
 
 def parse_args():
     ''' Arg Parsing, invalid input handling, and setting global command'''
@@ -60,6 +59,18 @@ def list_principals():
         if "lf" in role_obj['RoleName']:
             print ( role_obj['RoleName'])
         # print (role_obj)
+
+def permission_type_identifier(perm_obj):
+    '''Return type of perm obj '''
+    #{"TableWithColumns":{"DatabaseName":"cloudtrail","Name":"test__cloudtrail","ColumnWildcard":{}}}
+    t_d=perm_obj["Resource"]
+    permobj_type=list(t_d.keys())[0]
+    return permobj_type
+
+
+#constants:
+perm_types=["TableWithColumns","Table","Database","Catalog","DataLocation"]
+
 #PARSE ARGS
 args=parse_args()
 print (args)
@@ -74,12 +85,43 @@ permission_str=run_command(cmd,debug=False)
 #MAIN
 permissions_json=json.loads(permission_str)
 permission_list=permissions_json['PrincipalResourcePermissions']
-# print (permission_list)
 
-# #iterate through list
-t_l=[]
-for permission_obj in permission_list:
-    if principal in permission_obj['Principal']['DataLakePrincipalIdentifier']:
-        #print (permission_obj)
-        t_l.append(permission_obj)
-print (json.dumps(t_l,indent=4))
+#sample permission object
+# {"Principal":{"DataLakePrincipalIdentifier":"arn:aws:iam::898179183470:role/LakeFormationWorkflowRole"},"Resource":{"TableWithColumns":{"DatabaseName":"cloudtrail","Name":"test__cloudtrail","ColumnWildcard":{}}},"Permissions":["SELECT"],"PermissionsWithGrantOption":["SELECT"]}
+
+#iterate through list -> creating a new dict to hold permission obj per type
+# how to dientify if permission obj is of given type?
+# permission_type_identifier()
+t_d={}
+for perm_obj in permission_list:
+    perm_type=permission_type_identifier(perm_obj)
+    try:
+        t_l=t_d[perm_type]
+        "already exists in dictionary --> append to list"        
+        t_l = t_d[perm_type] 
+        t_l.append(perm_obj)
+        t_d[perm_type] = t_l
+    except KeyError:
+        "first match --> create empty list, add obj to list, and add to dictionary based on obj type"
+        t=[]
+        t.append(perm_obj)
+        t_d[perm_type] = t
+    except:
+        print ("Falling to last except, check logic")
+        pass
+
+#PPrint dictionary based on the keys
+for k,v in t_d.items():
+    print ("The type of permission is {}".format(k).upper())
+    for perm_obj in v:
+        print (perm_obj)
+        
+    print("\n")
+        
+#checking user input for principal and printing principals's permissino
+
+for k,v in t_d.items():
+    for perm_obj in v:
+        if principal in perm_obj['Principal']['DataLakePrincipalIdentifier']:
+            print(json.dumps(perm_obj,indent=4))
+
