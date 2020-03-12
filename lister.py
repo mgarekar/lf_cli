@@ -78,7 +78,7 @@ def PPrint(t_d):
         
         print("\n")
 
-def create_permission_dict(permission_list):
+def create_permission_dict(permission_list,args):
     '''Create and PPrint the permission dict from the permission list '''
     t_d={}
     for perm_obj in permission_list:
@@ -99,7 +99,8 @@ def create_permission_dict(permission_list):
             continue
 
     #PPrint dictionary based on the keys
-    PPrint(t_d)
+    if not args['principal']:
+        PPrint(t_d)
 
     return t_d
 #constants:
@@ -133,13 +134,16 @@ permission_list=permissions_json['PrincipalResourcePermissions']
 # {"Principal":{"DataLakePrincipalIdentifier":"arn:aws:iam::<>:role/LakeFormationWorkflowRole"},"Resource":{"TableWithColumns":{"DatabaseName":"cloudtrail","Name":"test__cloudtrail","ColumnWildcard":{}}},"Permissions":["SELECT"],"PermissionsWithGrantOption":["SELECT"]}
 
 #Create permission(s) dictionary
-permission_dict=create_permission_dict(permission_list)
+permission_dict=create_permission_dict(permission_list,args)
 
 
 #checking user input for principal and printing principals's permissino
 if principal:
-    for k,v in t_d.items():
+    print ('Principal FLAG was Specified...'.upper())
+    for k,v in permission_dict.items():
+        print (k)
         for perm_obj in v:
             if principal in perm_obj['Principal']['DataLakePrincipalIdentifier']:
-                print(json.dumps(perm_obj,indent=4))
+                print(perm_obj)
+        print ("\n")
 
